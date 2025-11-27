@@ -1,5 +1,7 @@
 ﻿using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters;
 
 namespace Lab5
 {
@@ -11,6 +13,19 @@ namespace Lab5
 
             // code here
 
+            answer = new int[matrix.GetLength(1)];
+            for (int j = 0; j < matrix.GetLength(1); j++)
+            {
+                answer[j] = 0;
+                for (int i = 0;  i < matrix.GetLength(0); i++)
+                {
+                    if (matrix[i, j] < 0)
+                    {
+                        answer[j]++;
+                    }
+                }
+            }
+
             // end
 
             return answer;
@@ -20,9 +35,44 @@ namespace Lab5
 
             // code here
 
+            int n = matrix.GetLength(0);
+            int m = matrix.GetLength(1);
+            int[,] a = new int[n, m];
+            for (int i = 0; i < n; i++)
+            {
+                int mini = int.MaxValue;
+                for (int j = 0; j < m; j++)
+                {
+                    if (matrix[i, j] < mini)
+                    {
+                        mini = matrix[i, j];
+                    }
+                }
+                a[i, 0] = mini;
+                int t = 1;
+                for (int j = 0; j < m; j++)
+                {
+                    if (t != 0 && matrix[i, j] == mini)
+                    {
+                        t = 0;
+                        continue;
+                    }
+                    a[i, j + t] = matrix[i, j];
+                }
+            }
+
+            for (int i = 0; i < n; ++i)
+            {
+                for (int j = 0; j < m; j++)
+                {
+                    Console.Write($"{matrix[i, j],5}");
+                }
+                Console.WriteLine();
+            }
+
             // end
 
-        }
+                }
         public int[,] Task3(int[,] matrix)
         {
             int[,] answer = null;
