@@ -72,13 +72,14 @@ namespace Lab5
                 { -9, -10, -11, -14, -6 },
                 { 0, -2, -3, -4, -5 }
             };
+            var a = input4;
             Lab5.Purple _main = new Lab5.Purple();
-            _main.Task2(input1);
-            for (int i = 0; i < input1.GetLength(0); ++i)
+            _main.Task2(a);
+            for (int i = 0; i < a.GetLength(0); ++i)
             {
-                for (int j = 0; j < input1.GetLength(1); j++)
+                for (int j = 0; j < a.GetLength(1); j++)
                 {
-                    Console.Write($"{input1[i, j],5}");
+                    Console.Write($"{a[i, j],5}");
                 }
                 Console.WriteLine();
             }
