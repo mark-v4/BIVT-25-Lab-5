@@ -198,44 +198,47 @@ namespace Lab5
         }
         public void Task7(int[,] matrix)
         {
-
             // code here
-
             int rows = matrix.GetLength(0);
             int cols = matrix.GetLength(1);
-            var tuples = new (int minVal, int idx)[rows];
+            if (rows == 0 || cols == 0) return;
+            int[] mins = new int[rows];
             for (int i = 0; i < rows; i++)
             {
                 int minv = matrix[i, 0];
                 for (int j = 1; j < cols; j++)
                     if (matrix[i, j] < minv) minv = matrix[i, j];
-                tuples[i] = (minv, i);
+                mins[i] = minv;
             }
-            var ordered = tuples
-                .Select((t, index) => new { t.minVal, t.idx, order = index })
-                .OrderByDescending(x => x.minVal)
-                .ThenBy(x => x.order)
-                .Select(x => x.idx)
-                .ToArray();
+            int[] order = new int[rows];
+            for (int i = 0; i < rows; i++) order[i] = i;
+            for (int i = 1; i < rows; i++)
+            {
+                int key = order[i];
+                int keyMin = mins[key];
+                int j = i - 1;
+                while (j >= 0 && mins[order[j]] < keyMin)
+                {
+                    order[j + 1] = order[j];
+                    j--;
+                }
+                order[j + 1] = key;
+            }
             int[,] copy = new int[rows, cols];
             for (int i = 0; i < rows; i++)
             {
-                int src = ordered[i];
+                int src = order[i];
                 for (int j = 0; j < cols; j++) copy[i, j] = matrix[src, j];
             }
             for (int i = 0; i < rows; i++)
                 for (int j = 0; j < cols; j++)
                     matrix[i, j] = copy[i, j];
-
             // end
-
         }
         public int[] Task8(int[,] matrix)
         {
             int[] answer = null;
-
             // code here
-
             int n = matrix.GetLength(0);
             int m = matrix.GetLength(1);
             if (n != m) return null;
@@ -252,27 +255,23 @@ namespace Lab5
                 }
                 answer[d + baseOffset] = sum;
             }
-
             // end
-
             return answer;
         }
         public void Task9(int[,] matrix, int k)
         {
-
             // code here
-
             int n = matrix.GetLength(0);
             int m = matrix.GetLength(1);
             if (n != m) return;
             if (k < 0 || k >= n) return;
-            int maxAbs = System.Math.Abs(matrix[0, 0]);
+            int maxAbs = Math.Abs(matrix[0, 0]);
             int maxI = 0, maxJ = 0;
             for (int i = 0; i < n; i++)
             {
                 for (int j = 0; j < n; j++)
                 {
-                    int a = System.Math.Abs(matrix[i, j]);
+                    int a = Math.Abs(matrix[i, j]);
                     if (a > maxAbs)
                     {
                         maxAbs = a;
@@ -281,12 +280,24 @@ namespace Lab5
                     }
                 }
             }
-            var rowOrder = new System.Collections.Generic.List<int>(n);
-            for (int i = 0; i < n; i++) if (i != maxI) rowOrder.Add(i);
-            rowOrder.Insert(k, maxI);
-            var colOrder = new System.Collections.Generic.List<int>(n);
-            for (int j = 0; j < n; j++) if (j != maxJ) colOrder.Add(j);
-            colOrder.Insert(k, maxJ);
+            int[] rowOrder = new int[n];
+            int pos = 0;
+            for (int i = 0; i < n; i++)
+            {
+                if (i == maxI) continue;
+                rowOrder[pos++] = i;
+            }
+            for (int i = n - 1; i > k; i--) rowOrder[i] = rowOrder[i - 1];
+            rowOrder[k] = maxI;
+            int[] colOrder = new int[n];
+            pos = 0;
+            for (int j = 0; j < n; j++)
+            {
+                if (j == maxJ) continue;
+                colOrder[pos++] = j;
+            }
+            for (int j = n - 1; j > k; j--) colOrder[j] = colOrder[j - 1];
+            colOrder[k] = maxJ;
             int[,] copy = new int[n, n];
             for (int i = 0; i < n; i++)
             {
@@ -301,14 +312,11 @@ namespace Lab5
                 for (int j = 0; j < n; j++)
                     matrix[i, j] = copy[i, j];
             // end
-
         }
         public int[,] Task10(int[,] A, int[,] B)
         {
             int[,] answer = null;
-
             // code here
-
             int aRows = A.GetLength(0);
             int aCols = A.GetLength(1);
             int bRows = B.GetLength(0);
@@ -326,52 +334,56 @@ namespace Lab5
                 }
             }
             // end
-
             return answer;
         }
         public int[][] Task11(int[,] matrix)
         {
             int[][] answer = null;
-
             // code here
-
             int rows = matrix.GetLength(0);
             int cols = matrix.GetLength(1);
             answer = new int[rows][];
             for (int i = 0; i < rows; i++)
             {
-                var list = new System.Collections.Generic.List<int>();
+                int cnt = 0;
+                for (int j = 0; j < cols; j++)
+                    if (matrix[i, j] > 0) cnt++;
+                int[] row = new int[cnt];
+                int p = 0;
                 for (int j = 0; j < cols; j++)
                 {
-                    if (matrix[i, j] > 0) list.Add(matrix[i, j]);
+                    if (matrix[i, j] > 0) row[p++] = matrix[i, j];
                 }
-                answer[i] = list.ToArray();
+                answer[i] = row;
             }
-
             // end
-
             return answer;
         }
         public int[,] Task12(int[][] array)
         {
             int[,] answer = null;
             // code here
-
-            if (array == null)
-            {
-                return new int[0, 0];
-            }
-            var flat = new System.Collections.Generic.List<int>();
+            if (array == null) return new int[0, 0];
+            int total = 0;
             for (int i = 0; i < array.Length; i++)
             {
                 if (array[i] == null) continue;
-                for (int j = 0; j < array[i].Length; j++) flat.Add(array[i][j]);
+                total += array[i].Length;
             }
-            int total = flat.Count;
             if (total == 0) return new int[0, 0];
-            int n = (int)System.Math.Ceiling(System.Math.Sqrt(total));
-            answer = new int[n, n];
+            int[] flat = new int[total];
             int idx = 0;
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (array[i] == null) continue;
+                for (int j = 0; j < array[i].Length; j++)
+                {
+                    flat[idx++] = array[i][j];
+                }
+            }
+            int n = (int)Math.Ceiling(Math.Sqrt(total));
+            answer = new int[n, n];
+            idx = 0;
             for (int i = 0; i < n; i++)
             {
                 for (int j = 0; j < n; j++)
@@ -380,9 +392,7 @@ namespace Lab5
                     else answer[i, j] = 0;
                 }
             }
-
             // end
-
             return answer;
         }
     }
